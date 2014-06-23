@@ -6,8 +6,55 @@ There's also a simple "disassembler" for Wirth RISC binary machine codes.
 Currently only the crudest decoding is performed on a single instruction
 (no extra information is used, in particular symbols are not supported.)
 '''
-from myhdl import intbv, concat
-from util import ops, word, signed, ops_rev, cmps
+from signs import blong, signed2py, py2signed
+
+
+# Basic RISC operations. (Map from string op mnemonics to int op codes.)
+ops = dict(
+
+  # Move and logical ops.
+  Mov = 0, Lsl = 1, Asr = 2, Ror= 3, And = 4, Ann = 5, Ior = 6, Xor = 7,
+
+  # Arithmetic (integer).
+  Add = 8, Sub = 9, Mul = 10, Div = 11,
+
+  # Arithmetic (floating point).
+  Fad = 12, Fsb = 13, Fml = 14, Fdv = 15,
+  )
+
+# Reverse map from op codes to mnemonics.
+ops_rev = dict((v, k) for k, v in ops.iteritems())
+
+
+# Comparison codes as per:
+#
+#   (cc == 0) & N     | // MI, PL
+#   (cc == 1) & Z     | // EQ, NE
+#   (cc == 2) & C     | // CS, CC
+#   (cc == 3) & OV    | // VS, VC
+#   (cc == 4) & (C|Z) | // LS, HI
+#   (cc == 5) & S     | // LT, GE
+#   (cc == 6) & (S|Z) | // LE, GT
+#   (cc == 7)           // T, F
+#
+cmps = {
+  (0, 0): 'MI',
+  (0, 1): 'PL',
+  (1, 0): 'EQ',
+  (1, 1): 'NE',
+  (2, 0): 'CS',
+  (2, 1): 'CC',
+  (3, 0): 'VS',
+  (3, 1): 'VC',
+  (4, 0): 'LS',
+  (4, 1): 'HI',
+  (5, 0): 'LT',
+  (5, 1): 'GE',
+  (6, 0): 'LE',
+  (6, 1): 'GT',
+  (7, 0): 'T',
+  (7, 1): 'F',
+}
 
 
 def Mov(a, c, u=0): return make_F0(u, 0, a, 0, c)
@@ -23,18 +70,18 @@ def Sub(a, b, c, u=0): return make_F0(u, 9, a, b, c)
 def Mul(a, b, c, u=0): return make_F0(u, 10, a, b, c)
 def Div(a, b, c, u=0): return make_F0(u, 11, a, b, c)
 
-def Mov_imm(a, K, v=0, u=0): return make_F1(u, v, 0, a, 0, K)
-def Lsl_imm(a, b, K, v=0, u=0): return make_F1(u, v, 1, a, b, K)
-def Asr_imm(a, b, K, v=0, u=0): return make_F1(u, v, 2, a, b, K)
-def Ror_imm(a, b, K, v=0, u=0): return make_F1(u, v, 3, a, b, K)
-def And_imm(a, b, K, v=0, u=0): return make_F1(u, v, 4, a, b, K)
-def Ann_imm(a, b, K, v=0, u=0): return make_F1(u, v, 5, a, b, K)
-def Ior_imm(a, b, K, v=0, u=0): return make_F1(u, v, 6, a, b, K)
-def Xor_imm(a, b, K, v=0, u=0): return make_F1(u, v, 7, a, b, K)
-def Add_imm(a, b, K, v=0, u=0): return make_F1(u, v, 8, a, b, K)
-def Sub_imm(a, b, K, v=0, u=0): return make_F1(u, v, 9, a, b, K)
-def Mul_imm(a, b, K, v=0, u=0): return make_F1(u, v, 10, a, b, K)
-def Div_imm(a, b, K, v=0, u=0): return make_F1(u, v, 11, a, b, K)
+def Mov_imm(a, K, u=0): return make_F1(u, 0, a, 0, K)
+def Lsl_imm(a, b, K, u=0): return make_F1(u, 1, a, b, K)
+def Asr_imm(a, b, K, u=0): return make_F1(u, 2, a, b, K)
+def Ror_imm(a, b, K, u=0): return make_F1(u, 3, a, b, K)
+def And_imm(a, b, K, u=0): return make_F1(u, 4, a, b, K)
+def Ann_imm(a, b, K, u=0): return make_F1(u, 5, a, b, K)
+def Ior_imm(a, b, K, u=0): return make_F1(u, 6, a, b, K)
+def Xor_imm(a, b, K, u=0): return make_F1(u, 7, a, b, K)
+def Add_imm(a, b, K, u=0): return make_F1(u, 8, a, b, K)
+def Sub_imm(a, b, K, u=0): return make_F1(u, 9, a, b, K)
+def Mul_imm(a, b, K, u=0): return make_F1(u, 10, a, b, K)
+def Div_imm(a, b, K, u=0): return make_F1(u, 11, a, b, K)
 
 def MI(c): return make_F3(0, c)
 def PL(c): return make_F3(0, c, True)
@@ -70,22 +117,13 @@ def GT_link(c): return make_F3(6, c, True, True)
 def T_link(c): return make_F3(7, c, v=True)
 def F_link(c): return make_F3(7, c, True, True)
 
-#  ((cc == 0) & N | // MI, PL
-#   (cc == 1) & Z | // EQ, NE
-#   (cc == 2) & C | // CS, CC
-#   (cc == 3) & OV | // VS, VC
-#   (cc == 4) & (C|Z) | // LS, HI
-#   (cc == 5) & S | // LT, GE
-#   (cc == 6) & (S|Z) | // LE, GT
-#   (cc == 7)); // T, F
-
 
 def dis(n):
   '''
   Take an integer and return a human-readable string description of the
   assembly instruction.
   '''
-  IR = intbv(n)[32:]
+  IR = blong(n)[32:]
   p, q = IR[31], IR[30]
   if not p:
     if not q:
@@ -104,7 +142,7 @@ def make_F0(u, op, a, b, c):
   assert 0 <= a < 0x10, repr(a)
   assert 0 <= b < 0x10, repr(b)
   assert 0 <= c < 0x10, repr(c)
-  return word(
+  return blong(
     (u << 29) +
     (a << 24) +
     (b << 20) +
@@ -113,21 +151,26 @@ def make_F0(u, op, a, b, c):
     )
 
 
-def make_F1(u, v, op, a, b, K):
+def make_F1(u, op, a, b, K):
   assert bool(u) == u, repr(u)
-  assert bool(v) == v, repr(v)
   assert ops['Mov'] <= op <= ops['Div'], repr(op)
   assert 0 <= a < 0x10, repr(a)
   assert 0 <= b < 0x10, repr(b)
-  assert 0 <= abs(K) < 2**16, repr(K)
-  return word(
+  if not (-0x10000 <= K < 0x10000):
+    raise ValueError('Immediate value out of bounds'
+                     ' -0x10000 <= imm < 0x10000: %i' % (K,))
+  v = K < 0
+  if v:
+    # Convert K to signed int and truncate upper 16 bits.
+    K = blong(py2signed(K))[16:]
+  return blong(
     (1 << 30) + # set q
     (u << 29) +
     (v << 28) +
     (a << 24) +
     (b << 20) +
     (op << 16) +
-    signed(K)
+    K
     )
 
 
@@ -137,7 +180,7 @@ def make_F3(cond, c, invert=False, v=False):
   assert 0 <= c < 0x10, repr(c)
   assert bool(invert) == invert, repr(invert)
   assert bool(v) == v, repr(v)
-  return word(
+  return blong(
     (0b11 << 30) + # set p, q
     (v << 28) +
     (invert << 27) +
@@ -172,8 +215,8 @@ def dis_Mov(IR):
     if u:
       imm = imm << 15
     else:
-      v = IR[28]
-      imm = concat(*([v] * 16 + [imm]))
+      if IR[28]: # v
+        imm = signed2py(imm | 0b11111111111111110000000000000000)
     return 'Mov R%i <- 0x%08x' % (ira, imm)
   if not u:
     return 'Mov R%i <- R%i' % (ira, IR[4:0])

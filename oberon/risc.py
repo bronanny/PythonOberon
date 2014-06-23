@@ -1,12 +1,10 @@
 from pprint import pformat
-from myhdl import intbv
-from util import ibv, bits2signed_int, signed
 from assembler import dis
-from signs import py2signed, signed2py
+from signs import py2signed, signed2py, bint, blong
 
 
 F = 2**32-1
-IO_RANGE = 0x0FFFFFFC0
+IO_RANGE = 0xFFFFFFC0
 
 
 class Trap(Exception):
@@ -33,7 +31,7 @@ class RISC(object):
     self.control_unit()
 
   def decode(self, instruction):
-    self.IR = IR = bint(instruction)
+    self.IR = IR = blong(instruction)
     self.p = IR[31]
     self.q = IR[30]
     self.u = IR[29]
@@ -154,44 +152,36 @@ class RISC(object):
     # For the arithmetical operators we must convert to Python ints to
     # correctly handle negative numbers.
 
-    elif self.ADD:
-      B = signed2py(B)
-      C1 = signed2py(C1)
+    B = signed2py(B)
+    C1 = signed2py(C1)
+
+    if self.ADD:
       res = B + C1 + (self.u and self.C)
       res = self._check_overflow(res)
 
     elif self.SUB:
-      B = signed2py(B)
-      C1 = signed2py(C1)
       res = B - C1 - (self.u and self.C)
       res = self._check_overflow(res)
 
     elif self.MUL:
-      B = signed2py(B)
-      C1 = signed2py(C1)
       product = B * C1
       self.product = blong(py2signed(product, 64))
       res = self.product[32:0]
 
     elif self.DIV:
-      B = signed2py(B)
-      C1 = signed2py(C1)
       res, remainder = divmod(B, C1)
       res = py2signed(res)
       self.remainder = py2signed(remainder)
 
-    else:
-      res = 0
-
-    return res if isinstance(res, bint) else bint(res)
+    return res if isinstance(res, blong) else blong(res)
 
   def _check_overflow(self, res, bits=33):
+    self.OV = False
     try:
       return py2signed(res)
     except ValueError:
       self.OV = True
       return blong(py2signed(res, bits))[32:0]
-    self.OV = False
 
   def register_instruction(self):
     self.pcnext = self.PC + 1
@@ -201,7 +191,6 @@ class RISC(object):
     self.Z = regmux == 0
     if self.ADD | self.SUB:
       self.C = regmux[32]
-#    self.OV = ... if (ADD|SUB) else OV
     self.H = (self.product[64:32] if self.MUL
               else self.remainder if self.DIV
               else self.H)
@@ -333,47 +322,24 @@ class ByteAddressed32BitRAM(object):
     return pformat(self.store)
 
 
-class binary_addressing_mixin(object):
-
-  def __getitem__(self, n):
-    if isinstance(n, tuple):
-      if len(n) != 2:
-        raise IndexError('Must pass only two indicies.')
-      start, stop = n
-      return self._mask(stop, start - stop)
-    if isinstance(n, slice):
-      return self._getslice(n)
-    return bool(self >> n & 1)
-
-  def _getslice(self, s):
-    n = s.start - s.stop
-    if n < 0:
-      raise IndexError('Slice indexes should be left-to-right.')
-    if not n:
-      raise IndexError('Zero bits.')
-    if s.step:
-      raise TypeError('Slice with step not supported.')
-
-    return self._mask(s.stop, n)
-
-  def _mask(self, stop, n):
-    return type(self)(self >> stop & (2**n - 1))
-
-
-class bint(binary_addressing_mixin, int): pass
-class blong(binary_addressing_mixin, long): pass
-
-
 if __name__ == '__main__':
   from assembler import Mov_imm, Add, Lsl_imm, T_link
 
   memory = ByteAddressed32BitRAM()
   for addr, instruction in enumerate((
-    Mov_imm(8, 1),
-    Mov_imm(1, 1),
-    Add(1, 1, 8),
-    Lsl_imm(1, 1, 2),
-    T_link(1),
+
+    # A very simple program to compute ((1 + 1) << 2) - 2
+
+    Mov_imm(8, 1), #    00: Mov R8 <- 1
+    Mov_imm(1, 1), #    01: Mov R1 <- 1
+    Add(1, 1, 8), #     02: Add R1 <- R1 + R8
+    Lsl_imm(1, 1, 2), # 03: Lsl R1 <- R1 << 2
+    Mov_imm(2, -2), #   04: Mov R2 <- -2
+    Add(1, 1, 2), #     05: Add R1 <- R1 + R2
+
+    T_link(1), #        06: BR to R1 (infinite loop)
+    # At this point in execution R1 contains 6, so the RISC emulator
+    # enters an infinite loop.
     )):
     memory.put(addr * 4, int(instruction))
 
