@@ -128,8 +128,8 @@ class RISC(object):
         if not self.u:
           res = self.C0
         else:
-          # ... (~irc[0] ? H : {N, Z, C, OV, 20'b0, 8'b01010000})
-          if not self.irc[0]:
+          # ... (~v ? H : {N, Z, C, OV, 20'b0, 8'b11010000})
+          if not self.v:
             res = self.H
           else:
             res = (
@@ -137,7 +137,7 @@ class RISC(object):
               self.Z << 30 |
               self.C << 29 |
               self.OV << 28 |
-              80
+              0b11010000
               )
 
     # Bit-wise logical operations
