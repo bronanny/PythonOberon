@@ -37,14 +37,20 @@ class RISC(object):
     self.u = IR[29]
     self.v = IR[28]
     self.w = IR[16]
-    self.op = IR[20, 16]
-    self.ira = IR[28, 24]
-    self.irb = IR[24, 20]
-    self.irc = IR[4, 0]
-    self.cc = IR[27, 24]
-    self.imm = IR[16, 0]
-    self.off = IR[20, 0]
-    self.jmp = IR[24, 0]
+    self.op = IR[20:16]
+    self.ira = IR[28:24]
+    self.irb = IR[24:20]
+    self.irc = IR[4:0]
+    self.cc = IR[27:24]
+    self.imm = IR[16:0]
+    self.off = signed2py(IR[20:0], 20)
+    # I am guessing that this has to be (allowed to be) a negative value
+    # otherwise there would be no way of jumping "backward" using a BR
+    # instruction with a negative offset.
+
+# Hmm, where did this come from?
+#    self.jmp = IR[24:0]
+
     self.C0 = self.R[self.irc]
 
   def what_are_we_up_to(self):
@@ -104,8 +110,8 @@ class RISC(object):
     #
     # The statement immediately below reconstructs the negative 32-bit value
     # if the V bit is set in the instruction, otherwise it simply passes
-    # through the given immediate value. (This happens, of coures, only if
-    # the Q bit is set, otherwise C1 is just set to C0.)
+    # through the given immediate value. (This happens only if the Q bit
+    # is set, otherwise C1 is just set to C0.)
 
     C1 = self.C1 = (
       (0b11111111111111110000000000000000 | self.imm)
@@ -151,7 +157,6 @@ class RISC(object):
 
     # For the arithmetical operators we must convert to Python ints to
     # correctly handle negative numbers.
-
     B = signed2py(B)
     C1 = signed2py(C1)
 
@@ -216,11 +221,12 @@ class RISC(object):
       self.R[15] = self.PC + 1
 
     if self.u:
-      self.pcnext = int(self.jmp + self.PC + 1)
-    elif self.IR[5]:
-      self.pcnext = int(self.irc)
+      self.pcnext = int(self.off + self.PC + 1)
+# I don't remember where I got this from...
+#    elif self.IR[5]:
+#      self.pcnext = int(self.irc)
     else:
-      self.pcnext = int(self.C0)
+      self.pcnext = int(blong(self.C0)[20:2])
 
   def ram_instruction(self):
     self.addr = addr = int(self.R[self.irb] + self.off)
@@ -322,6 +328,18 @@ class ByteAddressed32BitRAM(object):
     return pformat(self.store)
 
 
+def _format_bin(n, width=32, literal=True):
+  negative = n < 0
+  n = abs(n)
+  s = bin(n)[2:]
+  d = width - len(s)
+  s = [s]
+  if d > 0: s.append('0' * d)
+  if literal: s.append('0b')
+  if negative: s.append('-')
+  return ''.join(reversed(s))
+
+
 if __name__ == '__main__':
   from assembler import Mov_imm, Add, Lsl_imm, T_link
 
@@ -343,8 +361,22 @@ if __name__ == '__main__':
     )):
     memory.put(addr * 4, int(instruction))
 
+  # Print out a view of the program in RAM.
+  for address in sorted(memory.store):
+    instruction = memory[address * 4]
+    print (
+      '%02i: '
+      '%10i '
+      '0x%08x '
+      '%s'
+      ) % (
+        address,
+        instruction,
+        instruction,
+        _format_bin(instruction),
+        ), dis(instruction)
+
   risc_cpu = RISC(memory)
   for _ in range(10):
     risc_cpu.cycle()
     risc_cpu.view()
-
