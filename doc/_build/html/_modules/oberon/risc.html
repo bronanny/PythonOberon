@@ -48,7 +48,7 @@
             
   <h1>Source code for oberon.risc</h1><div class="highlight"><pre>
 <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">How &#39;bout now?</span>
+<span class="sd">Foo</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pformat</span>
 <span class="kn">from</span> <span class="nn">assembler</span> <span class="kn">import</span> <span class="n">dis</span>
@@ -61,12 +61,15 @@
 
 <div class="viewcode-block" id="Trap"><a class="viewcode-back" href="../../risc.html#oberon.risc.Trap">[docs]</a><span class="k">class</span> <span class="nc">Trap</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">tarp</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Foo</span>
+<span class="sd">  &#39;&#39;&#39;</span>
   <span class="k">pass</span>
 
 </div>
-<span class="k">class</span> <span class="nc">RISC</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RISC"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC">[docs]</a><span class="k">class</span> <span class="nc">RISC</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Foo</span>
+<span class="sd">  &#39;&#39;&#39;</span>
 
   <span class="n">MT</span> <span class="o">=</span> <span class="mi">12</span> <span class="c"># Module Table register.</span>
 
@@ -78,14 +81,20 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OV</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">io_ports</span> <span class="o">=</span> <span class="p">{}</span>
 
-  <span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RISC.cycle"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.cycle">[docs]</a>  <span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcnext</span>
     <span class="n">instruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">what_are_we_up_to</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">control_unit</span><span class="p">()</span>
-
-  <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.decode"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.decode">[docs]</a>  <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">IR</span> <span class="o">=</span> <span class="n">IR</span> <span class="o">=</span> <span class="n">blong</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">31</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span>
@@ -107,8 +116,11 @@
 <span class="c">#    self.jmp = IR[24:0]</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">C0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">irc</span><span class="p">]</span>
-
-  <span class="k">def</span> <span class="nf">what_are_we_up_to</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.what_are_we_up_to"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.what_are_we_up_to">[docs]</a>  <span class="k">def</span> <span class="nf">what_are_we_up_to</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">MOV</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">LSL</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ASR</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
@@ -125,8 +137,11 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">LDR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">STR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">BR</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span>
-
-  <span class="k">def</span> <span class="nf">control_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.control_unit"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.control_unit">[docs]</a>  <span class="k">def</span> <span class="nf">control_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">register_instruction</span><span class="p">()</span>
     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">:</span>
@@ -135,8 +150,11 @@
         <span class="k">raise</span> <span class="n">Trap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IR</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">ram_instruction</span><span class="p">()</span>
-
-  <span class="k">def</span> <span class="nf">Arithmetic_Logical_Unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.Arithmetic_Logical_Unit"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.Arithmetic_Logical_Unit">[docs]</a>  <span class="k">def</span> <span class="nf">Arithmetic_Logical_Unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">irb</span><span class="p">]</span>
 
     <span class="c"># Here&#39;s how negative immediate values are stored in the instruction and</span>
@@ -234,7 +252,7 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">remainder</span> <span class="o">=</span> <span class="n">py2signed</span><span class="p">(</span><span class="n">remainder</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">res</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">blong</span><span class="p">)</span> <span class="k">else</span> <span class="n">blong</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-
+</div>
   <span class="k">def</span> <span class="nf">_check_overflow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">bits</span><span class="o">=</span><span class="mi">33</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">OV</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="k">try</span><span class="p">:</span>
@@ -243,7 +261,10 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">OV</span> <span class="o">=</span> <span class="bp">True</span>
       <span class="k">return</span> <span class="n">blong</span><span class="p">(</span><span class="n">py2signed</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">bits</span><span class="p">))[</span><span class="mi">32</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
 
-  <span class="k">def</span> <span class="nf">register_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RISC.register_instruction"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.register_instruction">[docs]</a>  <span class="k">def</span> <span class="nf">register_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">pcnext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">regmux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Arithmetic_Logical_Unit</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ira</span><span class="p">]</span> <span class="o">=</span> <span class="n">regmux</span><span class="p">[</span><span class="mi">32</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
@@ -254,8 +275,11 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">H</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">[</span><span class="mi">64</span><span class="p">:</span><span class="mi">32</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MUL</span>
               <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">remainder</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIV</span>
               <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">branch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.branch_instruction"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.branch_instruction">[docs]</a>  <span class="k">def</span> <span class="nf">branch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">^</span> <span class="bp">self</span><span class="o">.</span><span class="n">OV</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">IR</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span> <span class="o">^</span>
@@ -282,8 +306,11 @@
 <span class="c">#      self.pcnext = int(self.irc)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">pcnext</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">blong</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">C0</span><span class="p">)[</span><span class="mi">20</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
-
-  <span class="k">def</span> <span class="nf">ram_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.ram_instruction"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.ram_instruction">[docs]</a>  <span class="k">def</span> <span class="nf">ram_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">irb</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">addr</span> <span class="o">&gt;=</span> <span class="n">IO_RANGE</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span> <span class="o">-</span> <span class="n">IO_RANGE</span><span class="p">)</span>
@@ -295,8 +322,11 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">ram</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ira</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">pcnext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">+</span> <span class="mi">1</span>
-
-  <span class="k">def</span> <span class="nf">io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.io"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.io">[docs]</a>  <span class="k">def</span> <span class="nf">io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io_ports</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">device</span><span class="p">:</span>
       <span class="k">raise</span> <span class="n">Trap</span><span class="p">(</span><span class="s">&#39;no device at port 0x</span><span class="si">%x</span><span class="s"> (aka </span><span class="si">%i</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
@@ -304,8 +334,11 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ira</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="n">device</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ira</span><span class="p">])</span>
-
-  <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RISC.view"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.view">[docs]</a>  <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">kw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">kw</span><span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ira</span><span class="p">]</span>
     <span class="k">print</span> <span class="s">&#39;- &#39;</span> <span class="o">*</span> <span class="mi">40</span>
@@ -324,33 +357,48 @@
       <span class="k">print</span> <span class="s">&#39;R</span><span class="si">%-2i</span><span class="s"> = 0x</span><span class="si">%-8x</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">reg0</span><span class="p">)</span>
     <span class="k">print</span>
 
-
-<span class="k">class</span> <span class="nc">ByteAddressed32BitRAM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</div></div>
+<div class="viewcode-block" id="ByteAddressed32BitRAM"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM">[docs]</a><span class="k">class</span> <span class="nc">ByteAddressed32BitRAM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Foo</span>
+<span class="sd">  &#39;&#39;&#39;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="p">{}</span>
 
-  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+<div class="viewcode-block" id="ByteAddressed32BitRAM.get"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">word_addr</span><span class="p">,</span> <span class="n">byte_offset</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">byte_offset</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">word_addr</span><span class="p">]</span>
-
+</div>
   <span class="n">__getitem__</span> <span class="o">=</span> <span class="n">get</span>
 
-  <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+<div class="viewcode-block" id="ByteAddressed32BitRAM.put"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.put">[docs]</a>  <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">word</span> <span class="o">&lt;=</span> <span class="n">F</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
     <span class="n">word_addr</span><span class="p">,</span> <span class="n">byte_offset</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">byte_offset</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">word_addr</span><span class="p">]</span> <span class="o">=</span> <span class="n">word</span>
-
+</div>
   <span class="n">__setitem__</span> <span class="o">=</span> <span class="n">put</span>
 
-  <span class="k">def</span> <span class="nf">get_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+<div class="viewcode-block" id="ByteAddressed32BitRAM.get_byte"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.get_byte">[docs]</a>  <span class="k">def</span> <span class="nf">get_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">word_addr</span><span class="p">,</span> <span class="n">byte_offset</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="n">word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">word_addr</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">word</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">byte_offset</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">255</span>
-
-  <span class="k">def</span> <span class="nf">put_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">byte</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ByteAddressed32BitRAM.put_byte"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.put_byte">[docs]</a>  <span class="k">def</span> <span class="nf">put_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">byte</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Foo</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">byte</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
       <span class="n">byte</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">byte</span><span class="p">[:</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">byte</span> <span class="o">&lt;</span> <span class="mi">256</span><span class="p">):</span>
@@ -375,14 +423,14 @@
       <span class="c"># pre-shifted byte, and OR the result with same.</span>
       <span class="n">byte</span> <span class="o">|=</span> <span class="n">word</span> <span class="o">&amp;</span> <span class="n">mask</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">word_addr</span><span class="p">]</span> <span class="o">=</span> <span class="n">byte</span>
-
+</div>
   <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">)))</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="k">else</span> <span class="mi">0</span>
 
   <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">)</span>
 
-
+</div>
 <span class="k">def</span> <span class="nf">_format_bin</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">literal</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
   <span class="n">negative</span> <span class="o">=</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span>
   <span class="n">n</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>

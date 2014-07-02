@@ -1,5 +1,5 @@
 '''
-How 'bout now?
+Foo
 '''
 from pprint import pformat
 from assembler import dis
@@ -12,12 +12,15 @@ IO_RANGE = 0xFFFFFFC0
 
 class Trap(Exception):
   '''
-tarp
-'''
+  Foo
+  '''
   pass
 
 
 class RISC(object):
+  '''
+  Foo
+  '''
 
   MT = 12 # Module Table register.
 
@@ -30,6 +33,9 @@ class RISC(object):
     self.io_ports = {}
 
   def cycle(self):
+    '''
+    Foo
+    '''
     self.PC = self.pcnext
     instruction = self.ram[self.PC << 2]
     self.decode(instruction)
@@ -37,6 +43,9 @@ class RISC(object):
     self.control_unit()
 
   def decode(self, instruction):
+    '''
+    Foo
+    '''
     self.IR = IR = blong(instruction)
     self.p = IR[31]
     self.q = IR[30]
@@ -60,6 +69,9 @@ class RISC(object):
     self.C0 = self.R[self.irc]
 
   def what_are_we_up_to(self):
+    '''
+    Foo
+    '''
     self.MOV = (not self.p) and (self.op == 0)
     self.LSL = (not self.p) and (self.op == 1)
     self.ASR = (not self.p) and (self.op == 2)
@@ -78,6 +90,9 @@ class RISC(object):
     self.BR  = self.p and self.q
 
   def control_unit(self):
+    '''
+    Foo
+    '''
     if not self.p:
       self.register_instruction()
     elif self.q:
@@ -88,6 +103,9 @@ class RISC(object):
       self.ram_instruction()
 
   def Arithmetic_Logical_Unit(self):
+    '''
+    Foo
+    '''
     B = self.R[self.irb]
 
     # Here's how negative immediate values are stored in the instruction and
@@ -195,6 +213,9 @@ class RISC(object):
       return blong(py2signed(res, bits))[32:0]
 
   def register_instruction(self):
+    '''
+    Foo
+    '''
     self.pcnext = self.PC + 1
     regmux = self.Arithmetic_Logical_Unit()
     self.R[self.ira] = regmux[32:0]
@@ -207,6 +228,9 @@ class RISC(object):
               else self.H)
 
   def branch_instruction(self):
+    '''
+    Foo
+    '''
     S = self.N ^ self.OV
     if not (
       self.IR[27] ^
@@ -235,6 +259,9 @@ class RISC(object):
       self.pcnext = int(blong(self.C0)[20:2])
 
   def ram_instruction(self):
+    '''
+    Foo
+    '''
     self.addr = addr = int(self.R[self.irb] + self.off)
     if addr >= IO_RANGE:
       self.io(self, addr - IO_RANGE)
@@ -248,6 +275,9 @@ class RISC(object):
     self.pcnext = self.PC + 1
 
   def io(self, port):
+    '''
+    Foo
+    '''
     device = self.io_ports.get(port)
     if not device:
       raise Trap('no device at port 0x%x (aka %i)' % (port, port))
@@ -257,6 +287,9 @@ class RISC(object):
       device.write(self.R[self.ira])
 
   def view(self):
+    '''
+    Foo
+    '''
     kw = self.__dict__.copy()
     kw['A'] = self.R[self.ira]
     print '- ' * 40
@@ -277,11 +310,17 @@ class RISC(object):
 
 
 class ByteAddressed32BitRAM(object):
+  '''
+  Foo
+  '''
 
   def __init__(self):
     self.store = {}
 
   def get(self, addr):
+    '''
+    Foo
+    '''
     word_addr, byte_offset = divmod(addr, 4)
     assert not byte_offset, repr(addr)
     return self.store[word_addr]
@@ -289,6 +328,9 @@ class ByteAddressed32BitRAM(object):
   __getitem__ = get
 
   def put(self, addr, word):
+    '''
+    Foo
+    '''
     assert 0 <= word <= F, repr(word)
     word_addr, byte_offset = divmod(addr, 4)
     assert not byte_offset, repr(addr)
@@ -297,11 +339,17 @@ class ByteAddressed32BitRAM(object):
   __setitem__ = put
 
   def get_byte(self, addr):
+    '''
+    Foo
+    '''
     word_addr, byte_offset = divmod(addr, 4)
     word = self.store[word_addr]
     return (word >> (8 * byte_offset)) & 255
 
   def put_byte(self, addr, byte):
+    '''
+    Foo
+    '''
     if isinstance(byte, str):
       byte = ord(byte[:1])
     if not (0 <= byte < 256):
