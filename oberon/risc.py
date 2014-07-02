@@ -1,3 +1,6 @@
+'''
+How 'bout now?
+'''
 from pprint import pformat
 from assembler import dis
 from signs import py2signed, signed2py, bint, blong
@@ -8,6 +11,9 @@ IO_RANGE = 0xFFFFFFC0
 
 
 class Trap(Exception):
+  '''
+tarp
+'''
   pass
 
 
