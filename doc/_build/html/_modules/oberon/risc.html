@@ -48,9 +48,9 @@
             
   <h1>Source code for oberon.risc</h1><div class="highlight"><pre>
 <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">Foo</span>
+<span class="sd">This is a simple eumulator for the RISC cpu developed by Prof. Wirth for</span>
+<span class="sd">the Oberon OS (and compiler.)</span>
 <span class="sd">&#39;&#39;&#39;</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pformat</span>
 <span class="kn">from</span> <span class="nn">assembler</span> <span class="kn">import</span> <span class="n">dis</span>
 <span class="kn">from</span> <span class="nn">signs</span> <span class="kn">import</span> <span class="n">py2signed</span><span class="p">,</span> <span class="n">signed2py</span><span class="p">,</span> <span class="n">bint</span><span class="p">,</span> <span class="n">blong</span>
 
@@ -93,14 +93,22 @@
 </div>
 <div class="viewcode-block" id="RISC.decode"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.decode">[docs]</a>  <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Decode the current instruction and set all the field attributes.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        31 28   24     20   16     12    8      4    0</span>
+<span class="sd">        [0000 0000 | 0000 0000 | 0000 0000 | 0000 0000]</span>
+<span class="sd">         pquv _ira   _irb [op]   |                _irc</span>
+<span class="sd">               | |        |      [_________imm_______]</span>
+<span class="sd">               _cc        [__________off_____________]</span>
+
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">IR</span> <span class="o">=</span> <span class="n">IR</span> <span class="o">=</span> <span class="n">blong</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">31</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">u</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">29</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">28</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">20</span><span class="p">:</span><span class="mi">16</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ira</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">28</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">irb</span> <span class="o">=</span> <span class="n">IR</span><span class="p">[</span><span class="mi">24</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
@@ -119,7 +127,12 @@
 </div>
 <div class="viewcode-block" id="RISC.what_are_we_up_to"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.what_are_we_up_to">[docs]</a>  <span class="k">def</span> <span class="nf">what_are_we_up_to</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+
+<span class="sd">    This is a long-winded way to figure out which operation an instruction</span>
+<span class="sd">    specifies.  Rather than a long if-elif-else statement we set all flags</span>
+<span class="sd">    every cycle.  The format of the code should make it easy to see that</span>
+<span class="sd">    only one flag will be True for a given set of {(p, op), q, u}.</span>
+
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">MOV</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">LSL</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
@@ -140,7 +153,19 @@
 </div>
 <div class="viewcode-block" id="RISC.control_unit"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.control_unit">[docs]</a>  <span class="k">def</span> <span class="nf">control_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    The RISC unit has three very simple kinds of instructions, indicated</span>
+<span class="sd">    by the two higest bits of an instruction.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        if p:</span>
+<span class="sd">          if q:</span>
+<span class="sd">            branch instruction...</span>
+<span class="sd">          else:</span>
+<span class="sd">            ram instruction...</span>
+<span class="sd">        else:</span>
+<span class="sd">          register instruction...</span>
+
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">register_instruction</span><span class="p">()</span>
@@ -423,14 +448,8 @@
       <span class="c"># pre-shifted byte, and OR the result with same.</span>
       <span class="n">byte</span> <span class="o">|=</span> <span class="n">word</span> <span class="o">&amp;</span> <span class="n">mask</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">word_addr</span><span class="p">]</span> <span class="o">=</span> <span class="n">byte</span>
-</div>
-  <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">)))</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="k">else</span> <span class="mi">0</span>
 
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">)</span>
-
-</div>
+</div></div>
 <span class="k">def</span> <span class="nf">_format_bin</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">literal</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
   <span class="n">negative</span> <span class="o">=</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span>
   <span class="n">n</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
@@ -452,15 +471,18 @@
     <span class="c"># A very simple program to compute ((1 + 1) &lt;&lt; 2) - 2</span>
 
     <span class="n">Mov_imm</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="c">#    00: Mov R8 &lt;- 1</span>
-    <span class="n">Mov_imm</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="c">#    01: Mov R1 &lt;- 1</span>
+    <span class="n">Mov_imm</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="c">#    01: Mov R1 &lt;- 7</span>
     <span class="n">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="c">#     02: Add R1 &lt;- R1 + R8</span>
-    <span class="n">Lsl_imm</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c"># 03: Lsl R1 &lt;- R1 &lt;&lt; 2</span>
-    <span class="n">Mov_imm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="c">#   04: Mov R2 &lt;- -2</span>
-    <span class="n">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c">#     05: Add R1 &lt;- R1 + R2</span>
+    <span class="n">Mov_imm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="c">#   03: Mov R2 &lt;- -2</span>
+    <span class="n">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c">#     04: Add R1 &lt;- R1 + R2</span>
+    <span class="n">Lsl_imm</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c"># 05: Lsl R1 &lt;- R1 &lt;&lt; 2</span>
 
     <span class="n">T_link</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="c">#        06: BR to R1 (infinite loop)</span>
-    <span class="c"># At this point in execution R1 contains 6, so the RISC emulator</span>
-    <span class="c"># enters an infinite loop.</span>
+
+    <span class="c"># At this point in execution R1 contains 24 (0x18) which is divided</span>
+    <span class="c"># by 4 (bytes per instruction) giving RAM address 6, so the RISC</span>
+    <span class="c"># emulator enters an infinite loop.</span>
+
     <span class="p">)):</span>
     <span class="n">memory</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">addr</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">instruction</span><span class="p">))</span>
 

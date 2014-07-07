@@ -50,7 +50,8 @@
             
   <div class="section" id="module-oberon.risc">
 <span id="prof-wirth-s-oberon-risc-in-python"></span><h1>Prof. Wirth&#8217;s Oberon RISC in Python<a class="headerlink" href="#module-oberon.risc" title="Permalink to this headline">¶</a></h1>
-<p>Foo</p>
+<p>This is a simple eumulator for the RISC cpu developed by Prof. Wirth for
+the Oberon OS (and compiler.)</p>
 <dl class="class">
 <dt id="oberon.risc.ByteAddressed32BitRAM">
 <em class="property">class </em><tt class="descclassname">oberon.risc.</tt><tt class="descname">ByteAddressed32BitRAM</tt><a class="reference internal" href="_modules/oberon/risc.html#ByteAddressed32BitRAM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.ByteAddressed32BitRAM" title="Permalink to this definition">¶</a></dt>
@@ -100,7 +101,17 @@
 <dl class="method">
 <dt id="oberon.risc.RISC.control_unit">
 <tt class="descname">control_unit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.control_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.control_unit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>The RISC unit has three very simple kinds of instructions, indicated
+by the two higest bits of an instruction.</p>
+<div class="highlight-python"><div class="highlight"><pre>if p:
+  if q:
+    branch instruction...
+  else:
+    ram instruction...
+else:
+  register instruction...
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -112,7 +123,14 @@
 <dl class="method">
 <dt id="oberon.risc.RISC.decode">
 <tt class="descname">decode</tt><big>(</big><em>instruction</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Decode the current instruction and set all the field attributes.</p>
+<div class="highlight-python"><div class="highlight"><pre>31 28   24     20   16     12    8      4    0
+[0000 0000 | 0000 0000 | 0000 0000 | 0000 0000]
+ pquv _ira   _irb [op]   |                _irc
+       | |        |      [_________imm_______]
+       _cc        [__________off_____________]
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -142,7 +160,10 @@
 <dl class="method">
 <dt id="oberon.risc.RISC.what_are_we_up_to">
 <tt class="descname">what_are_we_up_to</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.what_are_we_up_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.what_are_we_up_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>This is a long-winded way to figure out which operation an instruction
+specifies.  Rather than a long if-elif-else statement we set all flags
+every cycle.  The format of the code should make it easy to see that
+only one flag will be True for a given set of {(p, op), q, u}.</p>
 </dd></dl>
 
 </dd></dl>

@@ -1,7 +1,7 @@
 '''
-Foo
+This is a simple eumulator for the RISC cpu developed by Prof. Wirth for
+the Oberon OS (and compiler.)
 '''
-from pprint import pformat
 from assembler import dis
 from signs import py2signed, signed2py, bint, blong
 
@@ -44,14 +44,22 @@ class RISC(object):
 
   def decode(self, instruction):
     '''
-    Foo
+    Decode the current instruction and set all the field attributes.
+
+    ::
+
+        31 28   24     20   16     12    8      4    0
+        [0000 0000 | 0000 0000 | 0000 0000 | 0000 0000]
+         pquv _ira   _irb [op]   |                _irc
+               | |        |      [_________imm_______]
+               _cc        [__________off_____________]
+
     '''
     self.IR = IR = blong(instruction)
     self.p = IR[31]
     self.q = IR[30]
     self.u = IR[29]
     self.v = IR[28]
-    self.w = IR[16]
     self.op = IR[20:16]
     self.ira = IR[28:24]
     self.irb = IR[24:20]
@@ -70,7 +78,12 @@ class RISC(object):
 
   def what_are_we_up_to(self):
     '''
-    Foo
+
+    This is a long-winded way to figure out which operation an instruction
+    specifies.  Rather than a long if-elif-else statement we set all flags
+    every cycle.  The format of the code should make it easy to see that
+    only one flag will be True for a given set of {(p, op), q, u}.
+
     '''
     self.MOV = (not self.p) and (self.op == 0)
     self.LSL = (not self.p) and (self.op == 1)
@@ -91,7 +104,19 @@ class RISC(object):
 
   def control_unit(self):
     '''
-    Foo
+    The RISC unit has three very simple kinds of instructions, indicated
+    by the two higest bits of an instruction.
+
+    ::
+
+        if p:
+          if q:
+            branch instruction...
+          else:
+            ram instruction...
+        else:
+          register instruction...
+
     '''
     if not self.p:
       self.register_instruction()
@@ -375,12 +400,6 @@ class ByteAddressed32BitRAM(object):
       byte |= word & mask
     self.store[word_addr] = byte
 
-  def __len__(self):
-    return (4 * (1 + max(self.store))) if self.store else 0
-
-  def __repr__(self):
-    return pformat(self.store)
-
 
 def _format_bin(n, width=32, literal=True):
   negative = n < 0
@@ -403,15 +422,18 @@ if __name__ == '__main__':
     # A very simple program to compute ((1 + 1) << 2) - 2
 
     Mov_imm(8, 1), #    00: Mov R8 <- 1
-    Mov_imm(1, 1), #    01: Mov R1 <- 1
+    Mov_imm(1, 7), #    01: Mov R1 <- 7
     Add(1, 1, 8), #     02: Add R1 <- R1 + R8
-    Lsl_imm(1, 1, 2), # 03: Lsl R1 <- R1 << 2
-    Mov_imm(2, -2), #   04: Mov R2 <- -2
-    Add(1, 1, 2), #     05: Add R1 <- R1 + R2
+    Mov_imm(2, -2), #   03: Mov R2 <- -2
+    Add(1, 1, 2), #     04: Add R1 <- R1 + R2
+    Lsl_imm(1, 1, 2), # 05: Lsl R1 <- R1 << 2
 
     T_link(1), #        06: BR to R1 (infinite loop)
-    # At this point in execution R1 contains 6, so the RISC emulator
-    # enters an infinite loop.
+
+    # At this point in execution R1 contains 24 (0x18) which is divided
+    # by 4 (bytes per instruction) giving RAM address 6, so the RISC
+    # emulator enters an infinite loop.
+
     )):
     memory.put(addr * 4, int(instruction))
 
