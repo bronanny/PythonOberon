@@ -55,29 +55,30 @@ the Oberon OS (and compiler.)</p>
 <dl class="class">
 <dt id="oberon.risc.ByteAddressed32BitRAM">
 <em class="property">class </em><tt class="descclassname">oberon.risc.</tt><tt class="descname">ByteAddressed32BitRAM</tt><a class="reference internal" href="_modules/oberon/risc.html#ByteAddressed32BitRAM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.ByteAddressed32BitRAM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Imitate a RAM that is addressed per-byte, reads and writes four-byte
+words by default, and can be accessed per-byte if desired.</p>
 <dl class="method">
 <dt id="oberon.risc.ByteAddressed32BitRAM.get">
 <tt class="descname">get</tt><big>(</big><em>addr</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#ByteAddressed32BitRAM.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.ByteAddressed32BitRAM.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Return the word at <tt class="docutils literal"><span class="pre">addr</span></tt>, which must be a multiple of 4.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.ByteAddressed32BitRAM.get_byte">
 <tt class="descname">get_byte</tt><big>(</big><em>addr</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#ByteAddressed32BitRAM.get_byte"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.ByteAddressed32BitRAM.get_byte" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Return the byte at <tt class="docutils literal"><span class="pre">addr</span></tt>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.ByteAddressed32BitRAM.put">
 <tt class="descname">put</tt><big>(</big><em>addr</em>, <em>word</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#ByteAddressed32BitRAM.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.ByteAddressed32BitRAM.put" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Write the word to <tt class="docutils literal"><span class="pre">addr</span></tt>, which must be a multiple of 4.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.ByteAddressed32BitRAM.put_byte">
 <tt class="descname">put_byte</tt><big>(</big><em>addr</em>, <em>byte</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#ByteAddressed32BitRAM.put_byte"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.ByteAddressed32BitRAM.put_byte" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Write the byte to <tt class="docutils literal"><span class="pre">addr</span></tt>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -85,17 +86,20 @@ the Oberon OS (and compiler.)</p>
 <dl class="class">
 <dt id="oberon.risc.RISC">
 <em class="property">class </em><tt class="descclassname">oberon.risc.</tt><tt class="descname">RISC</tt><big>(</big><em>ram</em>, <em>PC=0</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>The RISC emulator.</p>
+<p>Written as a class rather than a single (large) function mostly so that
+the intermediate state and stages could be accessible to introspection.</p>
 <dl class="method">
 <dt id="oberon.risc.RISC.Arithmetic_Logical_Unit">
 <tt class="descname">Arithmetic_Logical_Unit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.Arithmetic_Logical_Unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.Arithmetic_Logical_Unit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Perform arithmetic or logic.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.RISC.branch_instruction">
 <tt class="descname">branch_instruction</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.branch_instruction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.branch_instruction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Perform a branch instruction by updating <tt class="docutils literal"><span class="pre">pcnext</span></tt> to take effect in
+the next cycle.</p>
 </dd></dl>
 
 <dl class="method">
@@ -117,7 +121,9 @@ else:
 <dl class="method">
 <dt id="oberon.risc.RISC.cycle">
 <tt class="descname">cycle</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.cycle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Run a single instruction-processing cycle.</p>
+<p>This is the main interface to the emulator.  Call it repeatedly to
+run the computer.</p>
 </dd></dl>
 
 <dl class="method">
@@ -136,25 +142,25 @@ else:
 <dl class="method">
 <dt id="oberon.risc.RISC.io">
 <tt class="descname">io</tt><big>(</big><em>port</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.io"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.io" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Read or write I/O ports.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.RISC.ram_instruction">
 <tt class="descname">ram_instruction</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.ram_instruction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.ram_instruction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Read or write RAM (or I/O ports.)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.RISC.register_instruction">
 <tt class="descname">register_instruction</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.register_instruction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.register_instruction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Perform a register instruction and update status flags (uses the ALU.)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="oberon.risc.RISC.view">
 <tt class="descname">view</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#RISC.view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.RISC.view" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Helper method; prints out a simple display of CPU state.</p>
 </dd></dl>
 
 <dl class="method">
@@ -171,7 +177,53 @@ only one flag will be True for a given set of {(p, op), q, u}.</p>
 <dl class="exception">
 <dt id="oberon.risc.Trap">
 <em class="property">exception </em><tt class="descclassname">oberon.risc.</tt><tt class="descname">Trap</tt><a class="reference internal" href="_modules/oberon/risc.html#Trap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.Trap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Foo</p>
+<dd><p>Generic trap mechanism.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oberon.risc.binary_addressing_mixin">
+<em class="property">class </em><tt class="descclassname">oberon.risc.</tt><tt class="descname">binary_addressing_mixin</tt><a class="reference internal" href="_modules/oberon/risc.html#binary_addressing_mixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.binary_addressing_mixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A mixin to allow an <tt class="docutils literal"><span class="pre">int</span></tt> or <tt class="docutils literal"><span class="pre">long</span></tt> to be addressed bit-wise.</p>
+<p>Single index gives a boolean, two gives a new int (n &gt;= 0) of that width.</p>
+<p>You can use the following:</p>
+<div class="highlight-python"><div class="highlight"><pre>n[i]    single index
+n[j:i]  slice
+n[j, i] two-tuple
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">n[i]</span></tt> gives a <tt class="docutils literal"><span class="pre">bool</span></tt> while <tt class="docutils literal"><span class="pre">n[j:i]</span></tt> gives a new number created
+from the <tt class="docutils literal"><span class="pre">j</span> <span class="pre">-</span> <span class="pre">i</span></tt> bits beginning with the bit at <tt class="docutils literal"><span class="pre">i</span></tt> and including
+bits to the left (more significant.)</p>
+<p>For example (see <tt class="docutils literal"><span class="pre">blong</span></tt> below):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">blong</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;0b10111&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">1L</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="oberon.risc.blong">
+<em class="property">class </em><tt class="descclassname">oberon.risc.</tt><tt class="descname">blong</tt><a class="reference internal" href="_modules/oberon/risc.html#blong"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.blong" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <tt class="docutils literal"><span class="pre">long</span></tt> that can be read bit-wise. See <tt class="docutils literal"><span class="pre">binary_addressing_mixin</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oberon.risc.py2signed">
+<tt class="descclassname">oberon.risc.</tt><tt class="descname">py2signed</tt><big>(</big><em>i</em>, <em>width=32</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#py2signed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.py2signed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a two&#8217;s-complement version of a Python int of the given bit width.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oberon.risc.signed2py">
+<tt class="descclassname">oberon.risc.</tt><tt class="descname">signed2py</tt><big>(</big><em>i</em>, <em>width=32</em><big>)</big><a class="reference internal" href="_modules/oberon/risc.html#signed2py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oberon.risc.signed2py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Python version of a two&#8217;s-complement int of the given bit width.</p>
 </dd></dl>
 
 </div>

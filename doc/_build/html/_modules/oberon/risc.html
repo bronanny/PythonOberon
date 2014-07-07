@@ -52,23 +52,112 @@
 <span class="sd">the Oberon OS (and compiler.)</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">from</span> <span class="nn">assembler</span> <span class="kn">import</span> <span class="n">dis</span>
-<span class="kn">from</span> <span class="nn">signs</span> <span class="kn">import</span> <span class="n">py2signed</span><span class="p">,</span> <span class="n">signed2py</span><span class="p">,</span> <span class="n">bint</span><span class="p">,</span> <span class="n">blong</span>
 
 
 <span class="n">F</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="o">-</span><span class="mi">1</span>
 <span class="n">IO_RANGE</span> <span class="o">=</span> <span class="mh">0xFFFFFFC0</span>
 
 
+<div class="viewcode-block" id="py2signed"><a class="viewcode-back" href="../../risc.html#oberon.risc.py2signed">[docs]</a><span class="k">def</span> <span class="nf">py2signed</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Return a two&#39;s-complement version of a Python int of the given bit width.</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">assert</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span>
+  <span class="n">width</span> <span class="o">-=</span> <span class="mi">1</span>
+  <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">width</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span>
+  <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">i</span>
+  <span class="k">return</span> <span class="n">b</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">width</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="signed2py"><a class="viewcode-back" href="../../risc.html#oberon.risc.signed2py">[docs]</a><span class="k">def</span> <span class="nf">signed2py</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Return a Python version of a two&#39;s-complement int of the given bit width.</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">assert</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span>
+  <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">width</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span>
+  <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">i</span>
+  <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="n">b</span>
+  
+</div>
+<div class="viewcode-block" id="binary_addressing_mixin"><a class="viewcode-back" href="../../risc.html#oberon.risc.binary_addressing_mixin">[docs]</a><span class="k">class</span> <span class="nc">binary_addressing_mixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  A mixin to allow an ``int`` or ``long`` to be addressed bit-wise.</span>
+
+<span class="sd">  Single index gives a boolean, two gives a new int (n &gt;= 0) of that width.</span>
+
+<span class="sd">  You can use the following::</span>
+
+<span class="sd">      n[i]    single index</span>
+<span class="sd">      n[j:i]  slice</span>
+<span class="sd">      n[j, i] two-tuple</span>
+
+<span class="sd">  ``n[i]`` gives a ``bool`` while ``n[j:i]`` gives a new number created</span>
+<span class="sd">  from the ``j - i`` bits beginning with the bit at ``i`` and including</span>
+<span class="sd">  bits to the left (more significant.)</span>
+
+<span class="sd">  For example (see ``blong`` below)::</span>
+
+<span class="sd">      &gt;&gt;&gt; b = blong(23)</span>
+<span class="sd">      &gt;&gt;&gt; bin(b)</span>
+<span class="sd">      &#39;0b10111&#39;</span>
+<span class="sd">      &gt;&gt;&gt; b[3]</span>
+<span class="sd">      False</span>
+<span class="sd">      &gt;&gt;&gt; b[0]</span>
+<span class="sd">      True</span>
+<span class="sd">      &gt;&gt;&gt; b[4:2]</span>
+<span class="sd">      1L</span>
+
+<span class="sd">  &#39;&#39;&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&#39;Must pass only two indicies.&#39;</span><span class="p">)</span>
+      <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="n">n</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span> <span class="n">start</span> <span class="o">-</span> <span class="n">stop</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">step</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Slice with step not supported.&#39;</span><span class="p">)</span>
+      <span class="n">stop</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">stop</span> <span class="ow">or</span> <span class="mi">0</span> <span class="c"># It might be None.</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">stop</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span> <span class="o">&gt;&gt;</span> <span class="n">n</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&#39;Indexes should be left-to-right.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&#39;Zero bits.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span> <span class="o">&gt;&gt;</span> <span class="n">stop</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="blong"><a class="viewcode-back" href="../../risc.html#oberon.risc.blong">[docs]</a><span class="k">class</span> <span class="nc">blong</span><span class="p">(</span><span class="n">binary_addressing_mixin</span><span class="p">,</span> <span class="nb">long</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  A ``long`` that can be read bit-wise. See ``binary_addressing_mixin``.</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">pass</span>
+
+</div>
 <div class="viewcode-block" id="Trap"><a class="viewcode-back" href="../../risc.html#oberon.risc.Trap">[docs]</a><span class="k">class</span> <span class="nc">Trap</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">  Foo</span>
+<span class="sd">  Generic trap mechanism.</span>
 <span class="sd">  &#39;&#39;&#39;</span>
   <span class="k">pass</span>
 
 </div>
 <div class="viewcode-block" id="RISC"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC">[docs]</a><span class="k">class</span> <span class="nc">RISC</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">  Foo</span>
+<span class="sd">  The RISC emulator.</span>
+
+<span class="sd">  Written as a class rather than a single (large) function mostly so that</span>
+<span class="sd">  the intermediate state and stages could be accessible to introspection.</span>
 <span class="sd">  &#39;&#39;&#39;</span>
 
   <span class="n">MT</span> <span class="o">=</span> <span class="mi">12</span> <span class="c"># Module Table register.</span>
@@ -83,7 +172,10 @@
 
 <div class="viewcode-block" id="RISC.cycle"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.cycle">[docs]</a>  <span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Run a single instruction-processing cycle.</span>
+
+<span class="sd">    This is the main interface to the emulator.  Call it repeatedly to</span>
+<span class="sd">    run the computer.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcnext</span>
     <span class="n">instruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">]</span>
@@ -178,7 +270,7 @@
 </div>
 <div class="viewcode-block" id="RISC.Arithmetic_Logical_Unit"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.Arithmetic_Logical_Unit">[docs]</a>  <span class="k">def</span> <span class="nf">Arithmetic_Logical_Unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Perform arithmetic or logic.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">irb</span><span class="p">]</span>
 
@@ -288,7 +380,7 @@
 
 <div class="viewcode-block" id="RISC.register_instruction"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.register_instruction">[docs]</a>  <span class="k">def</span> <span class="nf">register_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Perform a register instruction and update status flags (uses the ALU.)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">pcnext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">regmux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Arithmetic_Logical_Unit</span><span class="p">()</span>
@@ -303,7 +395,8 @@
 </div>
 <div class="viewcode-block" id="RISC.branch_instruction"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.branch_instruction">[docs]</a>  <span class="k">def</span> <span class="nf">branch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Perform a branch instruction by updating ``pcnext`` to take effect in</span>
+<span class="sd">    the next cycle.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">^</span> <span class="bp">self</span><span class="o">.</span><span class="n">OV</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
@@ -334,7 +427,7 @@
 </div>
 <div class="viewcode-block" id="RISC.ram_instruction"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.ram_instruction">[docs]</a>  <span class="k">def</span> <span class="nf">ram_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Read or write RAM (or I/O ports.)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">irb</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">addr</span> <span class="o">&gt;=</span> <span class="n">IO_RANGE</span><span class="p">:</span>
@@ -350,7 +443,7 @@
 </div>
 <div class="viewcode-block" id="RISC.io"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.io">[docs]</a>  <span class="k">def</span> <span class="nf">io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Read or write I/O ports.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io_ports</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">device</span><span class="p">:</span>
@@ -362,7 +455,7 @@
 </div>
 <div class="viewcode-block" id="RISC.view"><a class="viewcode-back" href="../../risc.html#oberon.risc.RISC.view">[docs]</a>  <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Helper method; prints out a simple display of CPU state.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">kw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">kw</span><span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ira</span><span class="p">]</span>
@@ -385,7 +478,8 @@
 </div></div>
 <div class="viewcode-block" id="ByteAddressed32BitRAM"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM">[docs]</a><span class="k">class</span> <span class="nc">ByteAddressed32BitRAM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">  Foo</span>
+<span class="sd">  Imitate a RAM that is addressed per-byte, reads and writes four-byte</span>
+<span class="sd">  words by default, and can be accessed per-byte if desired.</span>
 <span class="sd">  &#39;&#39;&#39;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -393,7 +487,7 @@
 
 <div class="viewcode-block" id="ByteAddressed32BitRAM.get"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Return the word at ``addr``, which must be a multiple of 4.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">word_addr</span><span class="p">,</span> <span class="n">byte_offset</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">byte_offset</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
@@ -403,7 +497,7 @@
 
 <div class="viewcode-block" id="ByteAddressed32BitRAM.put"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.put">[docs]</a>  <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Write the word to ``addr``, which must be a multiple of 4.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">word</span> <span class="o">&lt;=</span> <span class="n">F</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
     <span class="n">word_addr</span><span class="p">,</span> <span class="n">byte_offset</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -414,7 +508,7 @@
 
 <div class="viewcode-block" id="ByteAddressed32BitRAM.get_byte"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.get_byte">[docs]</a>  <span class="k">def</span> <span class="nf">get_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Return the byte at ``addr``.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">word_addr</span><span class="p">,</span> <span class="n">byte_offset</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="n">word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">word_addr</span><span class="p">]</span>
@@ -422,7 +516,7 @@
 </div>
 <div class="viewcode-block" id="ByteAddressed32BitRAM.put_byte"><a class="viewcode-back" href="../../risc.html#oberon.risc.ByteAddressed32BitRAM.put_byte">[docs]</a>  <span class="k">def</span> <span class="nf">put_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">byte</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Foo</span>
+<span class="sd">    Write the byte to ``addr``.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">byte</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
       <span class="n">byte</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">byte</span><span class="p">[:</span><span class="mi">1</span><span class="p">])</span>

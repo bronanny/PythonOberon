@@ -3,23 +3,112 @@ This is a simple eumulator for the RISC cpu developed by Prof. Wirth for
 the Oberon OS (and compiler.)
 '''
 from assembler import dis
-from signs import py2signed, signed2py, bint, blong
 
 
 F = 2**32-1
 IO_RANGE = 0xFFFFFFC0
 
 
+def py2signed(i, width=32):
+  '''
+  Return a two's-complement version of a Python int of the given bit width.
+  '''
+  assert width > 0
+  width -= 1
+  b = 2**width
+  if not (-b <= i < b):
+    raise ValueError
+  if i >= 0:
+    return i
+  return b + i + (1 << width)
+
+
+def signed2py(i, width=32):
+  '''
+  Return a Python version of a two's-complement int of the given bit width.
+  '''
+  assert width > 0
+  b = 2**width
+  if not (0 <= i < b):
+    raise ValueError
+  if i < b / 2:
+    return i
+  return i - b
+  
+
+class binary_addressing_mixin(object):
+  '''
+  A mixin to allow an ``int`` or ``long`` to be addressed bit-wise.
+
+  Single index gives a boolean, two gives a new int (n >= 0) of that width.
+
+  You can use the following::
+
+      n[i]    single index
+      n[j:i]  slice
+      n[j, i] two-tuple
+
+  ``n[i]`` gives a ``bool`` while ``n[j:i]`` gives a new number created
+  from the ``j - i`` bits beginning with the bit at ``i`` and including
+  bits to the left (more significant.)
+
+  For example (see ``blong`` below)::
+
+      >>> b = blong(23)
+      >>> bin(b)
+      '0b10111'
+      >>> b[3]
+      False
+      >>> b[0]
+      True
+      >>> b[4:2]
+      1L
+
+  '''
+
+  def __getitem__(self, n):
+    if isinstance(n, tuple):
+      if len(n) != 2:
+        raise IndexError('Must pass only two indicies.')
+      start, stop = n
+      return self._mask(stop, start - stop)
+
+    if isinstance(n, slice):
+      if n.step:
+        raise TypeError('Slice with step not supported.')
+      stop = n.stop or 0 # It might be None.
+      return self._mask(stop, n.start - stop)
+
+    return bool(self >> n & 1)
+
+  def _mask(self, stop, n):
+    if n < 0:
+      raise IndexError('Indexes should be left-to-right.')
+    if not n:
+      raise IndexError('Zero bits.')
+    return type(self)(self >> stop & (2**n - 1))
+
+
+class blong(binary_addressing_mixin, long):
+  '''
+  A ``long`` that can be read bit-wise. See ``binary_addressing_mixin``.
+  '''
+  pass
+
+
 class Trap(Exception):
   '''
-  Foo
+  Generic trap mechanism.
   '''
   pass
 
 
 class RISC(object):
   '''
-  Foo
+  The RISC emulator.
+
+  Written as a class rather than a single (large) function mostly so that
+  the intermediate state and stages could be accessible to introspection.
   '''
 
   MT = 12 # Module Table register.
@@ -34,7 +123,10 @@ class RISC(object):
 
   def cycle(self):
     '''
-    Foo
+    Run a single instruction-processing cycle.
+
+    This is the main interface to the emulator.  Call it repeatedly to
+    run the computer.
     '''
     self.PC = self.pcnext
     instruction = self.ram[self.PC << 2]
@@ -129,7 +221,7 @@ class RISC(object):
 
   def Arithmetic_Logical_Unit(self):
     '''
-    Foo
+    Perform arithmetic or logic.
     '''
     B = self.R[self.irb]
 
@@ -239,7 +331,7 @@ class RISC(object):
 
   def register_instruction(self):
     '''
-    Foo
+    Perform a register instruction and update status flags (uses the ALU.)
     '''
     self.pcnext = self.PC + 1
     regmux = self.Arithmetic_Logical_Unit()
@@ -254,7 +346,8 @@ class RISC(object):
 
   def branch_instruction(self):
     '''
-    Foo
+    Perform a branch instruction by updating ``pcnext`` to take effect in
+    the next cycle.
     '''
     S = self.N ^ self.OV
     if not (
@@ -285,7 +378,7 @@ class RISC(object):
 
   def ram_instruction(self):
     '''
-    Foo
+    Read or write RAM (or I/O ports.)
     '''
     self.addr = addr = int(self.R[self.irb] + self.off)
     if addr >= IO_RANGE:
@@ -301,7 +394,7 @@ class RISC(object):
 
   def io(self, port):
     '''
-    Foo
+    Read or write I/O ports.
     '''
     device = self.io_ports.get(port)
     if not device:
@@ -313,7 +406,7 @@ class RISC(object):
 
   def view(self):
     '''
-    Foo
+    Helper method; prints out a simple display of CPU state.
     '''
     kw = self.__dict__.copy()
     kw['A'] = self.R[self.ira]
@@ -336,7 +429,8 @@ class RISC(object):
 
 class ByteAddressed32BitRAM(object):
   '''
-  Foo
+  Imitate a RAM that is addressed per-byte, reads and writes four-byte
+  words by default, and can be accessed per-byte if desired.
   '''
 
   def __init__(self):
@@ -344,7 +438,7 @@ class ByteAddressed32BitRAM(object):
 
   def get(self, addr):
     '''
-    Foo
+    Return the word at ``addr``, which must be a multiple of 4.
     '''
     word_addr, byte_offset = divmod(addr, 4)
     assert not byte_offset, repr(addr)
@@ -354,7 +448,7 @@ class ByteAddressed32BitRAM(object):
 
   def put(self, addr, word):
     '''
-    Foo
+    Write the word to ``addr``, which must be a multiple of 4.
     '''
     assert 0 <= word <= F, repr(word)
     word_addr, byte_offset = divmod(addr, 4)
@@ -365,7 +459,7 @@ class ByteAddressed32BitRAM(object):
 
   def get_byte(self, addr):
     '''
-    Foo
+    Return the byte at ``addr``.
     '''
     word_addr, byte_offset = divmod(addr, 4)
     word = self.store[word_addr]
@@ -373,7 +467,7 @@ class ByteAddressed32BitRAM(object):
 
   def put_byte(self, addr, byte):
     '''
-    Foo
+    Write the byte to ``addr``.
     '''
     if isinstance(byte, str):
       byte = ord(byte[:1])
